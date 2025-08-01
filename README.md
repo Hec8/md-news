@@ -1,8 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎯 Deadpool Blog - Application de Blog Complète
 
-## Getting Started
+Une application de blog moderne avec thème Deadpool, développée avec Next.js 15, TypeScript, Tailwind CSS et Firebase.
 
-First, run the development server:
+## 🚀 Fonctionnalités
+
+### 🔐 Authentification
+- Inscription et connexion avec email/mot de passe
+- Gestion des sessions utilisateur
+- Protection des routes administrateur
+
+### 📝 Gestion des Articles
+- **Dashboard Administrateur** : Interface WYSIWYG avec React-Quill
+- **Publication d'articles** : Titre, contenu riche, image de couverture
+- **Gestion des métadonnées** : Tags, résumé, statut de publication
+- **Aperçu en temps réel** des articles
+
+### 👤 Profils Utilisateur
+- **Statistiques de lecture** : Articles lus, temps de lecture total
+- **Articles sauvegardés** : Liste des articles favoris
+- **Historique de lecture** : Suivi des articles consultés
+
+### 🎨 Interface Utilisateur
+- **Thème Deadpool** : Rouge et noir avec design moderne
+- **Design responsive** : Compatible mobile, tablette et desktop
+- **Carrousel d'articles** : Navigation fluide avec indicateurs
+- **Mode sombre** optimisé
+
+### 📱 Expérience Utilisateur
+- **Navigation intuitive** : Header avec menu utilisateur
+- **Recherche d'articles** : Filtrage par tags et contenu
+- **Temps de lecture estimé** pour chaque article
+- **Articles connexes** : Suggestions basées sur les tags
+
+## 🛠️ Technologies Utilisées
+
+- **Frontend** : Next.js 15, TypeScript, Tailwind CSS
+- **Backend** : Firebase (Auth, Firestore, Storage)
+- **Éditeur** : React-Quill WYSIWYG
+- **Icons** : Lucide React
+- **Notifications** : React-Hot-Toast
+- **Sanitisation** : DOMPurify
+
+## 📦 Installation
+
+### Prérequis
+- Node.js 18+ et npm/yarn
+- Compte Firebase
+
+### Étapes d'installation
+
+1. **Cloner le repository**
+```bash
+git clone <your-repo-url>
+cd deadpool-blog
+```
+
+2. **Installer les dépendances**
+```bash
+npm install
+# ou si vous avez des erreurs de compatibilité
+npm install --legacy-peer-deps
+```
+
+3. **Configuration Firebase**
+   - Allez sur [Firebase Console](https://console.firebase.google.com/)
+   - Créez un nouveau projet
+   - Activez Authentication (Email/Password)
+   - Créez une base de données Firestore
+   - Configurez Firebase Storage
+   - Copiez les clés de configuration dans `.env.local`
+
+4. **Variables d'environnement**
+   - Le fichier `.env.local` est déjà configuré
+   - Remplacez les valeurs par celles de votre projet Firebase
+
+5. **Lancer l'application**
 
 ```bash
 npm run dev

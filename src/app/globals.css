@@ -1,26 +1,211 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #030712;
+  --foreground: #ffffff;
+  --deadpool-red: #dc2626;
+  --deadpool-black: #000000;
+  --gray-950: #030712;
+  --gray-900: #111827;
+  --gray-800: #1f2937;
+  --gray-700: #374151;
+  --gray-600: #4b5563;
+  --gray-500: #6b7280;
+  --gray-400: #9ca3af;
+  --gray-300: #d1d5db;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Couleurs par défaut pour Tailwind */
+
+body {
+  background: var(--gray-950);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Styles pour les éléments de prose (contenu des articles) */
+.prose {
+  color: var(--foreground);
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: var(--foreground);
+  font-weight: bold;
+}
+
+.prose h1 {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+}
+
+.prose h2 {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+}
+
+.prose h3 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.75;
+}
+
+.prose a {
+  color: var(--deadpool-red);
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #ef4444;
+}
+
+.prose strong {
+  font-weight: bold;
+  color: var(--foreground);
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose ul,
+.prose ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+}
+
+.prose blockquote {
+  border-left: 4px solid var(--deadpool-red);
+  padding-left: 1rem;
+  font-style: italic;
+  color: var(--gray-300);
+  margin: 1.5rem 0;
+}
+
+.prose img {
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.prose code {
+  background-color: var(--gray-800);
+  color: var(--deadpool-red);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.prose pre {
+  background-color: var(--gray-800);
+  color: var(--foreground);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.prose pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+/* Styles pour les utilitaires de troncature */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Styles pour ReactQuill dans le mode sombre */
+.ql-toolbar {
+  border-top: 1px solid var(--gray-600) !important;
+  border-left: 1px solid var(--gray-600) !important;
+  border-right: 1px solid var(--gray-600) !important;
+  background-color: var(--gray-800) !important;
+}
+
+.ql-container {
+  border-bottom: 1px solid var(--gray-600) !important;
+  border-left: 1px solid var(--gray-600) !important;
+  border-right: 1px solid var(--gray-600) !important;
+  background-color: white !important;
+}
+
+.ql-editor {
+  color: #000000 !important;
+  min-height: 300px;
+}
+
+/* Animations personnalisées */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-900);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-600);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--deadpool-red);
+}
+
+/* Focus states améliorés */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--deadpool-red);
+  outline-offset: 2px;
+}
+
+/* Transitions par défaut */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
