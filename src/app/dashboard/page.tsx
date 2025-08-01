@@ -10,7 +10,7 @@ import { Article } from '@/types';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import QuillEditor from '@/components/QuillEditor';
-import { Plus, Upload, Eye, Trash2, Edit, Save, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Upload, Eye, Trash2, Edit, Save, X, Image as ImageIcon, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function DashboardPage() {
@@ -21,6 +21,8 @@ export default function DashboardPage() {
     const [editingArticle, setEditingArticle] = useState<Article | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'title' | 'views'>('recent');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Form state
@@ -60,6 +62,34 @@ export default function DashboardPage() {
         } catch (error) {
             console.error('Error fetching articles:', error);
             toast.error('Erreur lors du chargement des articles');
+        }
+    };
+
+    // Filtrer et trier les articles
+    const filteredAndSortedArticles = () => {
+        let filtered = articles;
+
+        // Filtrage par terme de recherche
+        if (searchTerm.trim()) {
+            filtered = articles.filter(article =>
+                article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                article.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+        }
+
+        // Tri
+        switch (sortBy) {
+            case 'recent':
+                return filtered.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+            case 'oldest':
+                return filtered.sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+            case 'title':
+                return filtered.sort((a, b) => a.title.localeCompare(b.title));
+            case 'views':
+                return filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
+            default:
+                return filtered;
         }
     };
 
@@ -294,7 +324,7 @@ export default function DashboardPage() {
                                             Image de couverture
                                         </label>
                                         <div className="space-y-3">
-                                            <div className="flex items-center space-x-4">
+                                            <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                                                 <input
                                                     type="file"
                                                     ref={fileInputRef}
@@ -306,40 +336,42 @@ export default function DashboardPage() {
                                                 <button
                                                     onClick={() => fileInputRef.current?.click()}
                                                     disabled={isLoading}
-                                                    className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg transition-colors flex items-center disabled:opacity-50"
+                                                    className="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-3 sm:py-2 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
                                                 >
                                                     {isLoading ? (
                                                         <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin mr-2"></div>
                                                     ) : (
                                                         <Upload className="w-5 h-5 mr-2" />
                                                     )}
-                                                    {isLoading ? 'Téléchargement...' : 'Télécharger'}
+                                                    {isLoading ? 'Téléchargement...' : 'Télécharger une image'}
                                                 </button>
                                             </div>
 
                                             {coverImage && (
-                                                <div className="bg-gray-800 rounded-lg p-3 flex items-center space-x-3">
-                                                    <img
-                                                        src={coverImage}
-                                                        alt="Aperçu"
-                                                        className="w-16 h-16 object-cover rounded"
-                                                    />
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center text-green-400 mb-1">
-                                                            <ImageIcon className="w-4 h-4 mr-2" />
-                                                            <span className="text-sm font-medium">Image téléchargée avec succès</span>
+                                                <div className="bg-gray-800 rounded-lg p-3">
+                                                    <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
+                                                        <img
+                                                            src={coverImage}
+                                                            alt="Aperçu"
+                                                            className="w-full h-32 sm:w-16 sm:h-16 object-cover rounded"
+                                                        />
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center text-green-400 mb-1">
+                                                                <ImageIcon className="w-4 h-4 mr-2 flex-shrink-0" />
+                                                                <span className="text-sm font-medium">Image téléchargée avec succès</span>
+                                                            </div>
+                                                            <p className="text-xs text-gray-400 truncate">
+                                                                {coverImage.split('/').pop()?.split('_').pop() || 'image.jpg'}
+                                                            </p>
                                                         </div>
-                                                        <p className="text-xs text-gray-400 truncate">
-                                                            {coverImage.split('/').pop()?.split('_').pop() || 'image.jpg'}
-                                                        </p>
+                                                        <button
+                                                            onClick={() => setCoverImage('')}
+                                                            className="self-start sm:self-center text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-gray-700 transition-colors"
+                                                            title="Supprimer l'image"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
                                                     </div>
-                                                    <button
-                                                        onClick={() => setCoverImage('')}
-                                                        className="text-red-400 hover:text-red-300 p-1"
-                                                        title="Supprimer l'image"
-                                                    >
-                                                        <X className="w-4 h-4" />
-                                                    </button>
                                                 </div>
                                             )}
                                         </div>
@@ -360,7 +392,7 @@ export default function DashboardPage() {
                                     </div>
 
                                     {/* Options */}
-                                    <div className="flex items-center space-x-6">
+                                    <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
                                         <label className="flex items-center">
                                             <input
                                                 type="checkbox"
@@ -369,7 +401,7 @@ export default function DashboardPage() {
                                                 className="mr-2 w-4 h-4 text-red-600 bg-gray-800 border-gray-700 rounded focus:ring-red-500"
                                                 aria-label="Marquer comme article en vedette"
                                             />
-                                            <span className="text-gray-300">Article en vedette</span>
+                                            <span className="text-gray-300 text-sm sm:text-base">Article en vedette</span>
                                         </label>
                                         <label className="flex items-center">
                                             <input
@@ -379,7 +411,7 @@ export default function DashboardPage() {
                                                 className="mr-2 w-4 h-4 text-red-600 bg-gray-800 border-gray-700 rounded focus:ring-red-500"
                                                 aria-label="Publier l'article"
                                             />
-                                            <span className="text-gray-300">Publié</span>
+                                            <span className="text-gray-300 text-sm sm:text-base">Publié</span>
                                         </label>
                                     </div>
 
@@ -393,33 +425,41 @@ export default function DashboardPage() {
                                                 value={content}
                                                 onChange={setContent}
                                                 placeholder="Écrivez votre article ici..."
-                                                className="h-80"
+                                                className="h-64 sm:h-80 lg:h-96"
                                             />
                                         </div>
+                                        <p className="text-xs text-gray-500 mt-2">
+                                            Utilisez la barre d'outils pour formater votre texte et insérer des images.
+                                        </p>
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 mt-12 sm:mt-16">
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-700 mt-8">
                                         <button
                                             onClick={() => {
                                                 setShowEditor(false);
                                                 resetForm();
                                             }}
-                                            className="px-6 py-3 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors text-center"
+                                            className="order-2 sm:order-1 px-6 py-3 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-800 transition-colors text-center font-medium"
                                         >
                                             Annuler
                                         </button>
                                         <button
                                             onClick={handleSaveArticle}
                                             disabled={isSaving}
-                                            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center disabled:opacity-50"
+                                            className="order-1 sm:order-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center disabled:opacity-50 min-w-[140px]"
                                         >
                                             {isSaving ? (
-                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                <>
+                                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                    Sauvegarde...
+                                                </>
                                             ) : (
-                                                <Save className="w-5 h-5 mr-2" />
+                                                <>
+                                                    <Save className="w-5 h-5 mr-2" />
+                                                    {editingArticle ? 'Mettre à jour' : 'Publier'}
+                                                </>
                                             )}
-                                            {editingArticle ? 'Mettre à jour' : 'Publier'}
                                         </button>
                                     </div>
                                 </div>
@@ -430,66 +470,95 @@ export default function DashboardPage() {
 
                 {/* Articles List */}
                 <div className="bg-gray-900 rounded-lg overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-800">
-                        <h2 className="text-xl font-semibold">Articles ({articles.length})</h2>
+                    <div className="px-4 sm:px-6 py-4 border-b border-gray-800">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <h2 className="text-lg sm:text-xl font-semibold">Articles ({filteredAndSortedArticles().length})</h2>
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                                <div className="relative w-full sm:w-64">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                    <input
+                                        type="text"
+                                        placeholder="Rechercher un article..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                                    />
+                                </div>
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                                    className="w-full sm:w-auto px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                                    aria-label="Trier les articles"
+                                >
+                                    <option value="recent">Plus récents</option>
+                                    <option value="oldest">Plus anciens</option>
+                                    <option value="title">Par titre</option>
+                                    <option value="views">Par vues</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-                    {articles.length === 0 ? (
-                        <div className="p-8 text-center text-gray-400">
-                            <p>Aucun article créé pour le moment.</p>
+                    {filteredAndSortedArticles().length === 0 ? (
+                        <div className="p-6 sm:p-8 text-center text-gray-400">
+                            <p>{searchTerm ? 'Aucun article trouvé pour votre recherche.' : 'Aucun article créé pour le moment.'}</p>
                         </div>
                     ) : (
                         <div className="divide-y divide-gray-800">
-                            {articles.map((article) => (
-                                <div key={article.id} className="p-6 hover:bg-gray-800 transition-colors">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex-1">
-                                            <h3 className="text-lg font-semibold text-white mb-2">
+                            {filteredAndSortedArticles().map((article) => (
+                                <div key={article.id} className="p-4 sm:p-6 hover:bg-gray-800 transition-colors">
+                                    <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-lg font-semibold text-white mb-2 truncate">
                                                 {article.title}
                                             </h3>
-                                            <p className="text-gray-400 mb-2 line-clamp-2">
+                                            <p className="text-gray-400 mb-3 line-clamp-2 text-sm sm:text-base">
                                                 {article.excerpt}
                                             </p>
-                                            <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                                <span>
-                                                    {article.createdAt.toDate().toLocaleDateString('fr-FR')}
+                                            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-xs sm:text-sm text-gray-500">
+                                                <span className="flex items-center">
+                                                    📅 {article.createdAt.toDate().toLocaleDateString('fr-FR')}
                                                 </span>
-                                                <span className={`px-2 py-1 rounded ${article.published ? 'bg-green-900 text-green-300' : 'bg-yellow-900 text-yellow-300'
-                                                    }`}>
-                                                    {article.published ? 'Publié' : 'Brouillon'}
-                                                </span>
-                                                {article.featured && (
-                                                    <span className="px-2 py-1 bg-red-900 text-red-300 rounded">
-                                                        En vedette
+                                                <div className="flex items-center space-x-2">
+                                                    <span className={`px-2 py-1 rounded text-xs ${article.published ? 'bg-green-900 text-green-300' : 'bg-yellow-900 text-yellow-300'
+                                                        }`}>
+                                                        {article.published ? 'Publié' : 'Brouillon'}
                                                     </span>
-                                                )}
-                                                <span>{article.views || 0} vues</span>
+                                                    {article.featured && (
+                                                        <span className="px-2 py-1 bg-red-900 text-red-300 rounded text-xs">
+                                                            ⭐ En vedette
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span className="flex items-center">
+                                                    👁️ {article.views || 0} vues
+                                                </span>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center space-x-2 ml-4">
+                                        <div className="flex items-center justify-end space-x-1 sm:space-x-2 lg:ml-4 flex-shrink-0">
                                             <a
                                                 href={`/article/${article.slug}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="p-2 text-gray-400 hover:text-blue-400 transition-colors"
+                                                className="p-2 sm:p-3 text-gray-400 hover:text-blue-400 transition-colors rounded-lg hover:bg-gray-700"
                                                 title="Voir l'article"
                                             >
-                                                <Eye className="w-5 h-5" />
+                                                <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
                                             </a>
                                             <button
                                                 onClick={() => handleEditArticle(article)}
-                                                className="p-2 text-gray-400 hover:text-yellow-400 transition-colors"
+                                                className="p-2 sm:p-3 text-gray-400 hover:text-yellow-400 transition-colors rounded-lg hover:bg-gray-700"
                                                 title="Modifier"
                                             >
-                                                <Edit className="w-5 h-5" />
+                                                <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteArticle(article.id)}
-                                                className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                                                className="p-2 sm:p-3 text-gray-400 hover:text-red-400 transition-colors rounded-lg hover:bg-gray-700"
                                                 title="Supprimer"
                                             >
-                                                <Trash2 className="w-5 h-5" />
+                                                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                                             </button>
                                         </div>
                                     </div>
